@@ -1,0 +1,123 @@
+const clientId = "6fa977e6adab48aa92e2eaf726612b42"; // Replace with your Spotify Client ID
+const redirectUri = "http://localhost:5500"; // Replace with your Redirect URI
+const scopes = ["user-top-read", "user-read-private", "playlist-read-private"].join(" ");
+let accessToken = null;
+
+// Handle Spotify Login
+document.getElementById("loginButton").addEventListener("click", () => {
+    const authUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&redirect_uri=${encodeURIComponent(
+        redirectUri
+    )}&scope=${encodeURIComponent(scopes)}`;
+    window.location.href = authUrl;
+});
+
+// Extract Access Token from URL
+function extractAccessToken() {
+    const hash = window.location.hash.substring(1);
+    const params = new URLSearchParams(hash);
+    accessToken = params.get("access_token");
+
+    if (accessToken) {
+        fetchTopArtists();
+        fetchTopTracks();
+    } else {
+        console.error("Access token not found.");
+    }
+}
+
+// Fetch Top Artists with Chart Integration
+function fetchTopArtists() {
+    fetch("https://api.spotify.com/v1/me/top/artists?limit=10", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        })
+        .then((response) => {
+            if (!response.ok) throw new Error("Failed to fetch top artists");
+            return response.json();
+        })
+        .then((data) => {
+            const container = document.getElementById("topArtistsContainer");
+            container.innerHTML = "<h3>Top Artists</h3>";
+            const artistNames = [];
+            const popularityScores = [];
+
+            data.items.forEach((artist, index) => {
+                const div = document.createElement("div");
+                // Add numbers dynamically to each artist
+                div.textContent = `${index + 1}. ${artist.name}`;
+                container.appendChild(div);
+
+                // Prepare data for the chart
+                artistNames.push(artist.name);
+                popularityScores.push(artist.popularity); // Popularity is a number (0–100)
+            });
+
+            renderChart("artistsChart", "Top artists popularity scores based on how much you listen to them", artistNames, popularityScores);
+        })
+        .catch((error) => console.error("Error fetching top artists:", error));
+}
+
+// Fetch Top Tracks with Chart Integration
+function fetchTopTracks() {
+    fetch("https://api.spotify.com/v1/me/top/tracks?limit=10", {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        })
+        .then((response) => {
+            if (!response.ok) throw new Error("Failed to fetch top tracks");
+            return response.json();
+        })
+        .then((data) => {
+            const container = document.getElementById("topTracksContainer");
+            container.innerHTML = "<h3>Top Tracks</h3>";
+            const trackNames = [];
+            const popularityScores = [];
+
+            data.items.forEach((track, index) => {
+                const div = document.createElement("div");
+                // Add numbers dynamically to each track
+                div.textContent = `${index + 1}. ${track.name} by ${track.artists.map((a) => a.name).join(", ")}`;
+                container.appendChild(div);
+
+                // Prepare data for the chart
+                trackNames.push(track.name);
+                popularityScores.push(track.popularity); // Popularity is a number (0–100)
+            });
+
+            renderChart("tracksChart", "Top tracks popularity scores based on how much you listen to them", trackNames, popularityScores);
+        })
+        .catch((error) => console.error("Error fetching top tracks:", error));
+}
+
+
+// Function to Render a Chart
+function renderChart(canvasId, title, labels, data) {
+    const ctx = document.getElementById(canvasId).getContext("2d");
+    new Chart(ctx, {
+        type: "bar", // You can change this to 'line', 'pie', etc.
+        data: {
+            labels: labels,
+            datasets: [{
+                label: title,
+                data: data,
+                backgroundColor: "rgba(30, 215, 96, 0.5)", // Spotify green
+                borderColor: "rgba(30, 215, 96, 1)",
+                borderWidth: 1,
+            }, ],
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        },
+    });
+}
+
+
+// Run extractAccessToken on page load
+window.onload = extractAccessToken;

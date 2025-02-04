@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Unwrapped</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+
+<body>
+    <header>
+        <h1>Spotify Unwrapped</h1>
+    </header>
+
+    <main>
+        <!-- Authentication Section -->
+        <section id="auth">
+            <h2>Press the Button To Sign into Spotify</h2>
+            <button id="loginButton">Press Here</button>
+        </section>
+
+        <!-- Top Artists Section -->
+        <section id="top-artists">
+            <h2>Your Top Artists</h2>
+            <div id="topArtistsContainer">
+                <p>Login to see your top artists.</p>
+            </div>
+            <canvas id="artistsChart" width="400" height="200"></canvas>
+        </section>
+
+        <!-- Top Tracks Section -->
+        <section id="top-tracks">
+            <h2>Your Top Tracks</h2>
+            <div id="topTracksContainer">
+                <p>Login to see your top tracks.</p>
+            </div>
+            <canvas id="tracksChart" width="400" height="200"></canvas>
+        </section>
+    </main>
+
+    <footer>
+        <p>Built by Patrick O'Shea</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
